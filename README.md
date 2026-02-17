@@ -79,3 +79,62 @@ Campos:
 
 (userid, courseid, mailtype)
 
+
+
+Esto garantiza:
+
+- no duplicación de correos
+- ejecución idempotente
+- trazabilidad completa
+
+---
+
+## 🧱 Arquitectura
+
+El plugin está estructurado en capas:
+
+### 1. Tasks (cron)
+
+- weekly_report (seguimiento normal)
+- futura bonificada_report (administrativo)
+
+Las tareas solo orquestan.
+
+---
+
+### 2. Service (pendiente)
+
+Toda la lógica real se moverá a una capa service para permitir:
+
+- ejecución por cron
+- ejecución manual desde dashboard
+
+sin duplicar código.
+
+---
+
+### 3. Helpers
+
+Actualmente:
+
+- helper/mail.php
+
+Funciones:
+
+- has_mail_been_sent()
+- log_mail()
+- send_weekly_mail()
+
+---
+
+### 4. Dashboard (pendiente)
+
+Se añadirá una interfaz propia:
+
+- configuración centralizada
+- disparo manual de reportes
+- activación/desactivación de cron
+- estado del sistema
+
+Ruta prevista:
+
