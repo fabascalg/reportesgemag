@@ -1,0 +1,10 @@
+
+Campos:
+
+- userid
+- courseid
+- mailtype
+- timecreated
+
+Índice único:
+

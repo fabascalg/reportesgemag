@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/reportesgemag/db" VERSION="2026020801" COMMENT="Reportes GemaG tables"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+
+    <TABLES>
+
+        <TABLE NAME="local_reportesgemag_mail_log" COMMENT="Mail log Reportes GemaG">
+
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="mailtype" TYPE="char" LENGTH="20" NOTNULL="true"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+
+            <INDEXES>
+                <INDEX NAME="user_course_type" UNIQUE="true" FIELDS="userid,courseid,mailtype"/>
+            </INDEXES>
+
+        </TABLE>
+
+    </TABLES>
+</XMLDB>
