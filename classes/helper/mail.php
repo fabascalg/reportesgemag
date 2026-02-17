@@ -51,5 +51,33 @@ class mail {
 
 		return email_to_user($user, $support, $subject, $body);
 	}
+	
+	public static function send_welcome_mail($user, $coursename) {
+
+		global $CFG;
+
+		$subject = "Bienvenido al curso {$coursename}";
+
+		$courseurl = $CFG->wwwroot . "/course/view.php?id=" . $user->courseid;
+
+		$message = "
+Hola {$user->firstname},
+
+Te damos la bienvenida al curso:
+
+{$coursename}
+
+Puedes acceder desde aquí:
+{$courseurl}
+
+Te recomendamos comenzar lo antes posible.
+
+Un saludo.
+";
+
+		email_to_user($user, \core_user::get_support_user(), $subject, $message);
+
+	}
+	
 }
 

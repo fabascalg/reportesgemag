@@ -4,6 +4,8 @@ require('../../config.php');
 
 require_login();
 
+use local_reportesgemag\service\report_service;
+
 $context = context_system::instance();
 require_capability('moodle/site:config', $context);
 
@@ -49,6 +51,30 @@ echo html_writer::start_tag('ul');
 echo html_writer::tag('li', 'Curso configurado: ' . $courselabel);
 echo html_writer::tag('li', 'Gestores:<br>' . $managerlabel);
 echo html_writer::end_tag('ul');
+
+$action = optional_param('action', '', PARAM_ALPHA);
+
+if ($action === 'runweekly') {
+
+    echo html_writer::tag('h3', 'Resultado ejecución manual');
+
+    $results = report_service::run_weekly();
+
+    if (!empty($results)) {
+        echo html_writer::start_tag('ul');
+        foreach ($results as $line) {
+            echo html_writer::tag('li', $line);
+        }
+        echo html_writer::end_tag('ul');
+    } else {
+        echo html_writer::tag('p', 'No hubo resultados.');
+    }
+}
+
+$url = new moodle_url('/local/reportesgemag/index.php', ['action' => 'runweekly']);
+
+echo html_writer::link($url, 'Ejecutar seguimiento ahora', ['class' => 'btn btn-primary']);
+
 
 
 // Placeholder para botones futuros.
