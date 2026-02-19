@@ -79,5 +79,34 @@ Un saludo.
 
 	}
 	
+	public static function send_finished_mail($user, $coursename) {
+
+		global $CFG;
+
+		$subject = "Enhorabuena, has finalizado el curso {$coursename}";
+
+		$courseurl = $CFG->wwwroot . "/course/view.php?id=" . $user->courseid;
+
+		$message = "
+Hola {$user->firstname},
+
+Enhorabuena.
+
+Has completado satisfactoriamente el curso:
+
+{$coursename}
+
+Puedes acceder al curso aquí:
+{$courseurl}
+
+Si procede, recibirás información adicional sobre tu certificado.
+
+Un saludo.
+";
+
+		email_to_user($user, \core_user::get_support_user(), $subject, $message);
+	}
+	
+	
 }
 
