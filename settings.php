@@ -60,13 +60,14 @@ if ($hassiteconfig) {
     // Añadir página de configuración al árbol.
     $ADMIN->add('localplugins', $settings);
 
-    // Añadir enlace al Dashboard.
+    // Añadir enlace al Dashboard dentro de la configuración.
     $ADMIN->add(
-        'localplugins',
+        'local_reportesgemag',
         new admin_externalpage(
             'local_reportesgemag_dashboard',
             'Dashboard Reportes GemaG',
-            new moodle_url('/local/reportesgemag/index.php')
+            new moodle_url('/local/reportesgemag/index.php'),
+            'local/reportesgemag:view'
         )
     );
 }
