@@ -1,83 +1,78 @@
 <?php
 
-require('../../config.php');
+require_once(__DIR__ . '/../../config.php');
 
 require_login();
+require_capability('moodle/site:config', context_system::instance());
 
 use local_reportesgemag\service\report_service;
 
-$context = context_system::instance();
-require_capability('moodle/site:config', $context);
-
 $PAGE->set_url('/local/reportesgemag/index.php');
-$PAGE->set_context($context);
+$PAGE->set_context(context_system::instance());
 $PAGE->set_title('Reportes GemaG');
-$PAGE->set_heading('Reportes GemaG');
+$PAGE->set_heading('Dashboard Reportes GemaG');
 
 echo $OUTPUT->header();
 
-echo html_writer::tag('h2', 'Dashboard Reportes GemaG');
+echo "<h2>Dashboard Reportes GemaG</h2>";
 
-// Mostrar configuración actual.
 $courseid = get_config('local_reportesgemag', 'courseid');
-$manageremails = get_config('local_reportesgemag', 'manageremails');
+$emails = get_config('local_reportesgemag', 'manageremails');
 
-// Curso.
-$courselabel = 'No definido';
 if ($courseid) {
-    if ($course = get_course($courseid)) {
-        $courselabel = $course->fullname . " (ID: {$courseid})";
+    $course = get_course($courseid);
+    echo "<p><strong>Curso configurado:</strong> {$course->fullname} (ID: {$courseid})</p>";
+}
+
+if ($emails) {
+    echo "<p><strong>Gestores:</strong> {$emails}</p>";
+}
+
+// ===============================
+// Procesar acciones
+// ===============================
+$results = [];
+
+if (optional_param('run_students', false, PARAM_BOOL)) {
+    $results = report_service::run_students();
+}
+
+if (optional_param('run_manager', false, PARAM_BOOL)) {
+    $msg = report_service::run_manager();
+    if ($msg) {
+        $results[] = $msg;
     }
 }
 
-// Gestores.
-$managerlabel = 'No definidos';
-if (!empty($manageremails)) {
-    $emails = array_map('trim', explode(',', $manageremails));
-    $lines = [];
-
-    foreach ($emails as $email) {
-        if ($user = $DB->get_record('user', ['email' => $email])) {
-            $lines[] = fullname($user) . " ({$email})";
-        } else {
-            $lines[] = $email;
-        }
-    }
-
-    $managerlabel = implode('<br>', $lines);
+if (optional_param('clear_logs', false, PARAM_BOOL)) {
+    global $DB;
+    $DB->execute("TRUNCATE {local_reportesgemag_mail_log}");
+    $results[] = "Registros limpiados";
 }
 
-echo html_writer::start_tag('ul');
-echo html_writer::tag('li', 'Curso configurado: ' . $courselabel);
-echo html_writer::tag('li', 'Gestores:<br>' . $managerlabel);
-echo html_writer::end_tag('ul');
-
-$action = optional_param('action', '', PARAM_ALPHA);
-
-if ($action === 'runweekly') {
-
-    echo html_writer::tag('h3', 'Resultado ejecución manual');
-
-    $results = report_service::run_weekly();
-
-    if (!empty($results)) {
-        echo html_writer::start_tag('ul');
-        foreach ($results as $line) {
-            echo html_writer::tag('li', $line);
-        }
-        echo html_writer::end_tag('ul');
-    } else {
-        echo html_writer::tag('p', 'No hubo resultados.');
+// ===============================
+// Mostrar resultados
+// ===============================
+if (!empty($results)) {
+    echo "<h3>Resultado</h3><ul>";
+    foreach ($results as $r) {
+        echo "<li>{$r}</li>";
     }
+    echo "</ul>";
 }
 
-$url = new moodle_url('/local/reportesgemag/index.php', ['action' => 'runweekly']);
-
-echo html_writer::link($url, 'Ejecutar seguimiento ahora', ['class' => 'btn btn-primary']);
-
-
-
-// Placeholder para botones futuros.
-echo html_writer::tag('p', 'Aquí añadiremos los botones de ejecución manual.');
+// ===============================
+// Botones
+// ===============================
+echo '
+<form method="post">
+    <button type="submit" name="run_students" value="1">Ejecutar seguimiento alumnos</button>
+    <button type="submit" name="run_manager" value="1">Enviar reporte gestores</button>
+    <button type="submit" name="clear_logs" value="1"
+        onclick="return confirm(\'¿Seguro que quieres limpiar los registros?\')">
+        Limpiar registros
+    </button>
+</form>
+';
 
 echo $OUTPUT->footer();

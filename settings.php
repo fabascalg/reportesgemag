@@ -1,21 +1,28 @@
 <?php
-
 defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-require_once($CFG->libdir.'/adminlib.php');
 
 if ($hassiteconfig) {
 
-    // Página principal de configuración.
+    // Página de settings.
     $settings = new admin_settingpage(
         'local_reportesgemag',
         'Reportes GemaG'
     );
 
-    /*
-     * 1. Activar / Desactivar plugin
-     */
+    // Añadir settings al bloque plugins locales.
+    $ADMIN->add('localplugins', $settings);
+
+    // === DASHBOARD LINK ===
+    $ADMIN->add(
+        'localplugins',
+        new admin_externalpage(
+            'local_reportesgemag_dashboard',
+            'Dashboard Reportes GemaG',
+            new moodle_url('/local/reportesgemag/index.php')
+        )
+    );
+
+    // Activar / desactivar plugin.
     $settings->add(new admin_setting_configcheckbox(
         'local_reportesgemag/enabled',
         'Activar Reportes GemaG',
@@ -23,51 +30,57 @@ if ($hassiteconfig) {
         1
     ));
 
-    /*
-     * 2. Obtener lista de cursos
-     */
+    // Lista de cursos.
     $courses = get_courses();
     $courselist = [];
 
     foreach ($courses as $course) {
         if ($course->id != SITEID) {
-            $courselist[$course->id] = $course->fullname . ' (ID: ' . $course->id . ')';
+            $courselist[$course->id] = $course->fullname;
         }
     }
 
-    /*
-     * 3. Selector de curso
-     */
+    // Curso a monitorizar.
     $settings->add(new admin_setting_configselect(
         'local_reportesgemag/courseid',
         'Curso a monitorizar',
-        'Selecciona el curso sobre el que se realizará el seguimiento.',
+        '',
         '',
         $courselist
     ));
 
-    /*
-     * 4. Emails gestores
-     */
+    // Emails gestores.
     $settings->add(new admin_setting_configtext(
         'local_reportesgemag/manageremails',
         'Emails gestores',
-        'Separados por coma.',
+        'Separados por coma',
         '',
         PARAM_TEXT
     ));
 
-    // Añadir página de configuración al árbol.
-    $ADMIN->add('localplugins', $settings);
+    // Activar manager report.
+    $settings->add(new admin_setting_configcheckbox(
+        'local_reportesgemag/enablemanager',
+        'Activar reporte a gestores',
+        'Enviar reporte agregado a gestores.',
+        1
+    ));
 
-    // Añadir enlace al Dashboard dentro de la configuración.
-    $ADMIN->add(
-        'local_reportesgemag',
-        new admin_externalpage(
-            'local_reportesgemag_dashboard',
-            'Dashboard Reportes GemaG',
-            new moodle_url('/local/reportesgemag/index.php'),
-            'local/reportesgemag:view'
-        )
-    );
+    // Nota mínima.
+    $settings->add(new admin_setting_configtext(
+        'local_reportesgemag/passgrade',
+        'Nota mínima de aprobación',
+        'Por defecto 7.5',
+        '7.5',
+        PARAM_FLOAT
+    ));
+
+    // Activar cron.
+    $settings->add(new admin_setting_configcheckbox(
+        'local_reportesgemag/enablecron',
+        'Activar cron automático',
+        'Permite que el seguimiento se ejecute por cron.',
+        0
+    ));    
+    
 }

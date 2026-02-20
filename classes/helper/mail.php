@@ -106,6 +106,38 @@ Un saludo.
 
 		email_to_user($user, \core_user::get_support_user(), $subject, $message);
 	}
+
+	public static function send_manager_report($emails, $coursename, $reporttext) {
+
+		global $CFG;
+
+		$subject = "Reporte seguimiento curso: {$coursename}";
+
+		$message = "
+	Reporte automático del curso:
+
+	{$coursename}
+
+	{$reporttext}
+
+	-- 
+	Reportes GemaG
+	";
+
+		$emailList = array_map('trim', explode(',', $emails));
+
+		foreach ($emailList as $email) {
+
+			$user = (object)[
+				'email' => $email,
+				'firstname' => 'Gestor',
+				'lastname' => '',
+				'id' => -1
+			];
+
+			email_to_user($user, \core_user::get_support_user(), $subject, $message);
+		}
+	}	
 	
 	
 }
